@@ -35,7 +35,7 @@ def AESUnwrap(K, encrypted):
 
     #        A[0] = IV = A6A6A6A6A6A6A6A6
     if A != 0xa6a6a6a6a6a6a6a6:
-        raise RuntimeError(f'Decrypt match fail, please check if the password is correct')
+        raise RuntimeError('Decrypt match fail, please check if the password is correct')
     
     #   3) Output results.
     P = b""
@@ -65,7 +65,7 @@ class IOSBackupChecker:
 
     def decrypt_with_manifest(self, path, domain):
         cur = self.fsdb.cursor()
-        cur.execute(f"SELECT fileID, file  FROM Files WHERE relativePath = '{path}' AND domain = '{domain}'")
+        cur.execute("SELECT fileID, file  FROM Files WHERE relativePath = ? AND domain = ?", (path, domain, ))
         fileID, plist = cur.fetchone()
         fs_info = plistlib.loads(plist)
         fs_objects = fs_info['$objects']
@@ -133,8 +133,6 @@ class IOSBackupChecker:
         with open(os.path.join(self.dir, 'Manifest.plist'), 'rb') as f:
             self.plist = plistlib.load(f)
         self.encrypted = self.plist['IsEncrypted']
-
-        temp_files = []
         manifest_db_path = os.path.join(self.dir, "Manifest.db")
         with open(manifest_db_path, 'rb') as f:
             if f.read(4) == b'SQLi':
@@ -279,7 +277,7 @@ class IOSBackupChecker:
         if detection[0] == 'exact':
             return f'Exact match by {detection[1]} : {detection[2]}'
         elif detection[0] == 'heuristics':
-            str = f'Suspicious combination of events: '
+            str = 'Suspicious combination of events: '
             for timestamp, event in detection[1]:
                 event_type = event[0]
                 if event_type == 'M':
